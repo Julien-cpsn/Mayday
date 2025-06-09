@@ -1,0 +1,17 @@
+[package]
+name = "mayday"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ratatui = { version = "0.29.0", default-features = false, features = ["macros", "crossterm", "all-widgets"]}
+reqwest = { version = "0.12.19", default-features = false, features = ["cookies", "rustls-tls-native-roots", "multipart", "gzip", "brotli", "deflate", "stream"] }
+
+tui-textarea = { version = "0.7.0", features = ["ratatui"] }
+
+crokey = "1.1.2"
+anyhow = "1.0.98"
+chrono = "0.4.41"
+textwrap = "0.16.2"
+rayon = "1.10.0"
+regex = { version = "1.11.1", features = [] }
