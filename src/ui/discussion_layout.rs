@@ -26,7 +26,7 @@ impl App<'_> {
         let messaging_service = self.get_selected_messaging_services();
 
         let mut block = Block::bordered()
-            .title_top(messaging_service.discussion_name)
+            .title_top(messaging_service.driver.config().discussion_name())
             .title_alignment(Alignment::Center);
 
         if self.state == AppState::Main {
@@ -38,7 +38,7 @@ impl App<'_> {
         let mut messages = vec![];
         let mut last_sender = &None;
         
-        for message in &messaging_service.messages {
+        for message in &messaging_service.tmp_messages {
             let mut alignment = Alignment::Right;
 
             let max_length = self.get_max_line_length(&message.text);
@@ -76,13 +76,13 @@ impl App<'_> {
                 }
             }
 
-            let timestamp_format = match Local::now().date_naive() == message.timestamp.date_naive() {
+            let timestamp_format = match Local::now().date_naive() == message.timestamp.0.date_naive() {
                 true => "%H:%M",
                 false => "%H:%M %d/%m/%Y"
             };
             
             messages.push(
-                Line::raw(message.timestamp.format(timestamp_format).to_string())
+                Line::raw(message.timestamp.0.format(timestamp_format).to_string())
                     .dark_gray()
                     .dim()
                     .alignment(alignment)

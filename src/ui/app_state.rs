@@ -9,10 +9,13 @@ impl App<'_> {
             AppState::Main => Line::from(vec![Span::raw("Main menu").on_dark_gray()]),
             AppState::MessagingServiceSelected => {
                 let messaging_service = self.get_selected_messaging_services();
+                let driver_name = messaging_service.driver.name();
+                let discussion_name = messaging_service.driver.config().discussion_name();
+                
                 Line::from(vec![
-                    Span::raw(messaging_service.driver.name()).dark_gray(),
+                    Span::raw(driver_name).dark_gray(),
                     Span::raw(" > ").dark_gray(),
-                    Span::raw(messaging_service.discussion_name).on_dark_gray()
+                    Span::raw(discussion_name).on_dark_gray()
                 ])
             }
         };

@@ -10,6 +10,14 @@ impl App<'_> {
         self.message_input.set_style(Style::new().white());
         self.message_input.set_placeholder_text("Type...");
     }
+    
+    pub fn load_all_messages(&mut self) -> anyhow::Result<()> {
+        for messaging_service in self.stateful_messaging_services.messaging_services.iter_mut() {
+            messaging_service.load_tmp_messages()?;
+        }
+        
+        Ok(())
+    }
 
     pub fn send_message(&mut self) {
         let text = &self.message_input.lines().join("\n");
@@ -33,7 +41,7 @@ impl App<'_> {
 
         let mut last_sender = &None;
 
-        for message in &messaging_service.messages {
+        for message in &messaging_service.tmp_messages {
             let max_length = self.get_max_line_length(&message.text);
             let lines = wrap(&message.text, max_length);
 

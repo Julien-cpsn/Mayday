@@ -7,7 +7,7 @@ use tui_textarea::CursorMove;
 use crate::app::App;
 use crate::states::AppState;
 
-const TICK_RATE: Duration = Duration::from_millis(2000);
+const TICK_RATE: Duration = Duration::from_millis(10000);
 
 impl App<'_> {
     pub fn handle_events(&mut self) -> anyhow::Result<()> {
@@ -23,6 +23,7 @@ impl App<'_> {
             
             for (index, messaging_service) in self.stateful_messaging_services.messaging_services.iter_mut().enumerate() {
                 if messaging_service.poll_received_messages()? && self.stateful_messaging_services.list_state.selected().is_some() && self.stateful_messaging_services.list_state.selected().unwrap() == index {
+                    messaging_service.load_tmp_messages()?;
                     should_update_discussion_scrollbar = true;
                 }
             }

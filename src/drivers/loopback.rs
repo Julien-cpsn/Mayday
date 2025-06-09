@@ -1,15 +1,44 @@
-use crate::drivers::driver::MessagingDriver;
-use crate::models::message::Message;
+use crate::models::config::DriverConfig;
+use crate::models::driver::MessagingDriver;
+use crate::models::message::{DateTime, Message};
 use chrono::Local;
 use ratatui::prelude::Color;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 const SENDER: &str = "Yourself";
 
-pub struct LoopbackMessaging;
+#[derive(Serialize, Deserialize)]
+pub struct LoopbackConfig {
+    pub discussion_name: String,
+    pub uuid: Uuid,
+}
+
+impl DriverConfig for LoopbackConfig {
+    fn discussion_name(&self) -> &str {
+        self.discussion_name.as_str()
+    }
+
+    fn uuid(&self) -> &Uuid {
+        &self.uuid
+    }
+}
+
+pub struct LoopbackMessaging {
+    config: LoopbackConfig,
+}
 
 impl MessagingDriver for LoopbackMessaging {
-    fn new() -> Self {
-        LoopbackMessaging
+    type Config = LoopbackConfig;
+
+    fn new(config: LoopbackConfig) -> Self {
+        LoopbackMessaging {
+            config
+        }
+    }
+
+    fn config(&self) -> &LoopbackConfig {
+        &self.config
     }
 
     fn name(&self) -> &str {
@@ -24,19 +53,7 @@ impl MessagingDriver for LoopbackMessaging {
         Color::Blue
     }
 
-    fn send_message(&mut self, messages: &mut Vec<Message>, text: String) -> anyhow::Result<()> {
-        messages.push(Message {
-            sender: None,
-            text: text.clone(),
-            timestamp: Local::now(),
-        });
-
-        messages.push(Message {
-            sender: Some(String::from(SENDER)),
-            text,
-            timestamp: Local::now(),
-        });
-
+    fn send_message(&mut self, _message: &Message) -> anyhow::Result<()> {
         Ok(())
     }
 
@@ -45,7 +62,7 @@ impl MessagingDriver for LoopbackMessaging {
             Message {
                 sender: Some(String::from(SENDER)),
                 text: String::from("T'es là mec ?"),
-                timestamp: Local::now(),
+                timestamp: DateTime(Local::now()),
             }
         ])
     }
