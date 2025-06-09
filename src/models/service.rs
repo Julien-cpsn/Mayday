@@ -3,8 +3,11 @@ use crate::models::message::{DateTime, Message};
 use chrono::Local;
 use native_db::*;
 use regex::Regex;
+use uuid::Uuid;
 
 pub struct  MessagingService<'a> {
+    pub uuid: Uuid,
+    pub discussion_name: String,
     pub tmp_messages: Vec<Message>,
     pub db: Database<'a>,
     pub driver: Box<dyn ErasedMessagingDriver>
@@ -16,7 +19,7 @@ impl MessagingService<'_> {
         let messages: Vec<Message> = r.scan().primary()?.all()?.try_collect()?;
 
         self.tmp_messages = messages;
-        
+
         Ok(())
     }
 
@@ -39,7 +42,7 @@ impl MessagingService<'_> {
 
         rw.insert(message)?;
         rw.commit()?;
-        
+
         Ok(())
     }
 

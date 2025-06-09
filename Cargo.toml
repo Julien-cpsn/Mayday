@@ -25,4 +25,3 @@ textwrap = "0.16.2"
 rayon = "1.10.0"
 regex = { version = "1.11.1", features = [] }
 once_cell = { version = "1.21.3", default-features = false, features = ["std"]}
-parking_lot = { version = "0.12.4", features = ["serde", "send_guard"]}

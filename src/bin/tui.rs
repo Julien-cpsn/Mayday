@@ -8,7 +8,7 @@ fn main() -> anyhow::Result<()> {
         messaging_services: parse_config_directory(),
         list_state: ListState::default(),
     };
-    
+
     let mut terminal = ratatui::init();
     let mut app = App::new(messaging_service)?;
 

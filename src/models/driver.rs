@@ -1,9 +1,9 @@
-use crate::models::config::DriverConfig;
+use crate::models::driver_config::DriverConfig;
 use crate::models::message::Message;
 use ratatui::prelude::Color;
 
 pub trait MessagingDriver {
-    type Config: DriverConfig + Sized;
+    type Config: DriverConfig + Sized + Clone;
 
     fn new(config: Self::Config) -> Self where Self: Sized;
     fn config(&self) -> &Self::Config;

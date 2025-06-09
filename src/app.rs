@@ -29,7 +29,7 @@ impl<'a> App<'a> {
 
         app.reset_message_input();
         app.load_all_messages()?;
-        
+
         Ok(app)
     }
     

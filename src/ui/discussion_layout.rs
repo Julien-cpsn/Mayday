@@ -26,7 +26,7 @@ impl App<'_> {
         let messaging_service = self.get_selected_messaging_services();
 
         let mut block = Block::bordered()
-            .title_top(messaging_service.driver.config().discussion_name())
+            .title_top(messaging_service.discussion_name.clone())
             .title_alignment(Alignment::Center);
 
         if self.state == AppState::Main {

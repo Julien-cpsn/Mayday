@@ -13,7 +13,7 @@ impl App<'_> {
             .iter()
             .map(|messaging_service: &MessagingService| Line::from(vec![
                 Span::raw(messaging_service.driver.icon()).white().bg(messaging_service.driver.color()),
-                format!(" {}", messaging_service.driver.config().discussion_name()).into()
+                format!(" {}", messaging_service.discussion_name).into()
             ]))
             .collect();
 

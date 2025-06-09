@@ -10,12 +10,12 @@ impl App<'_> {
         self.message_input.set_style(Style::new().white());
         self.message_input.set_placeholder_text("Type...");
     }
-    
+
     pub fn load_all_messages(&mut self) -> anyhow::Result<()> {
         for messaging_service in self.stateful_messaging_services.messaging_services.iter_mut() {
             messaging_service.load_tmp_messages()?;
         }
-        
+
         Ok(())
     }
 

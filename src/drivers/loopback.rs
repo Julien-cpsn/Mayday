@@ -1,27 +1,16 @@
-use crate::models::config::DriverConfig;
+use crate::models::driver_config::DriverConfig;
 use crate::models::driver::MessagingDriver;
 use crate::models::message::{DateTime, Message};
 use chrono::Local;
 use ratatui::prelude::Color;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 const SENDER: &str = "Yourself";
 
-#[derive(Serialize, Deserialize)]
-pub struct LoopbackConfig {
-    pub discussion_name: String,
-    pub uuid: Uuid,
-}
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct LoopbackConfig;
 
 impl DriverConfig for LoopbackConfig {
-    fn discussion_name(&self) -> &str {
-        self.discussion_name.as_str()
-    }
-
-    fn uuid(&self) -> &Uuid {
-        &self.uuid
-    }
 }
 
 pub struct LoopbackMessaging {

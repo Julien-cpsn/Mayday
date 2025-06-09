@@ -10,7 +10,7 @@ impl App<'_> {
             AppState::MessagingServiceSelected => {
                 let messaging_service = self.get_selected_messaging_services();
                 let driver_name = messaging_service.driver.name();
-                let discussion_name = messaging_service.driver.config().discussion_name();
+                let discussion_name = &messaging_service.discussion_name;
                 
                 Line::from(vec![
                     Span::raw(driver_name).dark_gray(),

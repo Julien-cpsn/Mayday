@@ -1,11 +1,15 @@
 use serde::Deserialize;
-use crate::drivers::loopback::LoopbackConfig;
+use crate::drivers::loopback::{LoopbackConfig, LoopbackMessaging};
+use crate::models::driver::MessagingDriver;
+use crate::config_to_driver;
 
-pub mod loopback;
+mod loopback;
 
-#[derive(Deserialize)]
-#[serde(tag = "type")]
-pub enum MessagingDriverConfigs {
-    #[serde(alias = "loopback")]
-    Loopback(LoopbackConfig),
+config_to_driver! {
+    #[derive(Debug, Deserialize)]
+    #[serde(tag = "type")]
+    pub enum MessagingDriverConfigs {
+        #[serde(alias = "loopback", alias = "LOOPBACK")]
+        Loopback(LoopbackConfig) -> LoopbackMessaging,
+    }
 }

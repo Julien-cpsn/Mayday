@@ -1,14 +1,12 @@
-use crate::drivers::MessagingDriverConfigs;
-use crate::models::driver::MessagingDriver;
+use crate::files::database::MODELS;
+use crate::models::config_file::ConfigFile;
 use crate::models::service::MessagingService;
 use directories::{BaseDirs, ProjectDirs};
+use native_db::Builder;
 use std::fs;
 use std::fs::OpenOptions;
 use std::io::Read;
 use std::path::PathBuf;
-use native_db::Builder;
-use crate::drivers::loopback::LoopbackMessaging;
-use crate::files::database::MODELS;
 
 const QUALIFIER: &str = "com";
 const ORGANIZATION: &str = "Julien-cpsn";
@@ -23,11 +21,11 @@ pub fn parse_config_directory<'a>() -> Vec<MessagingService<'a>> {
 
     for path in paths {
         let path = path.unwrap().path();
-        
+
         if path.is_dir() {
             continue;
         }
-        
+
         //dbg!(&path);
 
         let file_name = path.file_name().unwrap().to_str().unwrap();
@@ -37,7 +35,7 @@ pub fn parse_config_directory<'a>() -> Vec<MessagingService<'a>> {
             services.push(message_service);
         }
     }
-    
+
     return services;
 }
 
@@ -50,20 +48,20 @@ fn parse_config_file<'a>(path: &PathBuf, data_dir: &PathBuf) -> MessagingService
         .expect("Could not open config file");
 
     config_file.read_to_string(&mut file_content).expect("Could not read config file");
-    
-    let config = toml::from_str::<MessagingDriverConfigs>(&file_content).expect("Could not parse config file");
-    
-    let driver = match config {
-        MessagingDriverConfigs::Loopback(loopback_config) => LoopbackMessaging::new(loopback_config),
-    };
-    
-    let db_path = data_dir.join(driver.config().uuid.to_string());
+
+    let config_file = toml::from_str::<ConfigFile>(&file_content).expect("Could not parse config file");
+
+    let driver = config_file.driver.get_driver_config();
+
+    let db_path = data_dir.join(config_file.uuid.to_string());
     let db = Builder::new().create(&MODELS, db_path).expect("Could not create database");
     
     MessagingService {
+        uuid: config_file.uuid,
+        discussion_name: config_file.discussion_name,
         tmp_messages: vec![],
         db,
-        driver: Box::new(driver),
+        driver,
     }
 }
 
@@ -84,12 +82,12 @@ fn get_config_dir() -> PathBuf {
 
 fn get_data_dir() -> PathBuf {
     let base_dir = BaseDirs::new().unwrap();
-    
+
     let data_dir = base_dir.data_local_dir().join("mayday");
-    
+
     if !data_dir.exists() {
         fs::create_dir_all(&data_dir).expect(&format!("Could not create data directory \"{}\"", data_dir.display()));
     }
-    
+
     data_dir.to_path_buf()
 }
