@@ -20,8 +20,6 @@ impl App<'_> {
         let inner_messages_area = messages_area.inner(Margin::new(2, 0));
         let inner_separator_area = text_area_area.inner(Margin::new(1, 0));
         let inner_text_area_area = text_area_area.inner(Margin::new(1, 1));
-        self.last_messages_area_size.0 = inner_messages_area.width;
-        self.last_messages_area_size.1 = inner_messages_area.height;
 
         let messaging_service = self.get_selected_messaging_services();
 
@@ -58,7 +56,7 @@ impl App<'_> {
 
                 for line in lines {
                     messages.push(
-                        Line::raw(format!("{:length$}", line, length = max_length))
+                        Line::raw(format!("{line:max_length$}"))
                             .white()
                             .bg(messaging_service.driver.color())
                             .alignment(alignment)
@@ -68,7 +66,7 @@ impl App<'_> {
             else {
                 for line in lines {
                     messages.push(
-                        Line::raw(format!("{:length$}", line, length = max_length))
+                        Line::raw(format!("{line:max_length$}"))
                             .white()
                             .on_gray()
                             .alignment(alignment)
@@ -76,13 +74,13 @@ impl App<'_> {
                 }
             }
 
-            let timestamp_format = match Local::now().date_naive() == message.timestamp.0.date_naive() {
+            let timestamp_format = match Local::now().date_naive() == message.timestamp.date_naive() {
                 true => "%H:%M",
                 false => "%H:%M %d/%m/%Y"
             };
             
             messages.push(
-                Line::raw(message.timestamp.0.format(timestamp_format).to_string())
+                Line::raw(message.timestamp.format(timestamp_format).to_string())
                     .dark_gray()
                     .dim()
                     .alignment(alignment)

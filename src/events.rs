@@ -7,36 +7,34 @@ use tui_textarea::CursorMove;
 use crate::app::App;
 use crate::states::AppState;
 
-const TICK_RATE: Duration = Duration::from_millis(10000);
+const TICK_RATE: Duration = Duration::from_millis(1000);
 
 impl App<'_> {
-    pub fn handle_events(&mut self) -> anyhow::Result<()> {
+    pub async fn handle_events(&mut self) -> anyhow::Result<()> {
         if event::poll(TICK_RATE)? {
             if let Ok(event) = crossterm::event::read() {
                 if let Event::Key(key) = event {
-                    self.handle_event(key)?;
+                    self.handle_event(key).await?;
                 }
             }
         }
         else {
-            let mut should_update_discussion_scrollbar = false;
-            
             for (index, messaging_service) in self.stateful_messaging_services.messaging_services.iter_mut().enumerate() {
-                if messaging_service.poll_received_messages()? && self.stateful_messaging_services.list_state.selected().is_some() && self.stateful_messaging_services.list_state.selected().unwrap() == index {
-                    messaging_service.load_tmp_messages()?;
-                    should_update_discussion_scrollbar = true;
+                if messaging_service.try_load_messages().await? && self.stateful_messaging_services.list_state.selected().is_some() && self.stateful_messaging_services.list_state.selected().unwrap() == index {
+                    self.should_update_discussion_scrollbar = true;
                 }
             }
-            
-            if should_update_discussion_scrollbar {
-                self.update_discussion_scrollbar();
-            }
+        }
+
+        if self.should_update_discussion_scrollbar {
+            self.update_discussion_scrollbar();
+            self.should_update_discussion_scrollbar = false;
         }
 
         Ok(())
     }
 
-    fn handle_event(&mut self, key: KeyEvent) -> anyhow::Result<()> {
+    async fn handle_event(&mut self, key: KeyEvent) -> anyhow::Result<()> {
         let key_combination: KeyCombination = KeyCombination::from(key);
 
         //dbg!(&key_combination);
@@ -52,7 +50,7 @@ impl App<'_> {
                 },
                 AppState::MessagingServiceSelected => match key_combination {
                     key!(esc) => self.to_main_state(),
-                    key!(alt-enter) | key!(ctrl-enter) => self.send_message(),
+                    key!(alt-enter) | key!(ctrl-enter) => self.send_message().await,
                     key!(delete) => { self.message_input.delete_next_char(); },
                     key!(backspace) => { self.message_input.delete_char(); },
                     key!(ctrl-shift-C) => self.message_input.copy(),

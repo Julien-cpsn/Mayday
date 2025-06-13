@@ -3,6 +3,8 @@
 pub mod app;
 pub mod models;
 pub mod files;
+pub mod args;
+pub mod worker;
 mod ui;
 mod drivers;
 mod states;

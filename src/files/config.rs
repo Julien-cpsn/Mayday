@@ -1,8 +1,8 @@
-use crate::files::database::MODELS;
 use crate::models::config_file::ConfigFile;
 use crate::models::service::MessagingService;
 use directories::{BaseDirs, ProjectDirs};
-use native_db::Builder;
+use ormlite::sqlite::{SqliteConnectOptions, SqliteConnection};
+use ormlite::Connection;
 use std::fs;
 use std::fs::OpenOptions;
 use std::io::Read;
@@ -12,7 +12,7 @@ const QUALIFIER: &str = "com";
 const ORGANIZATION: &str = "Julien-cpsn";
 const APPLICATION: &str = "mayday";
 
-pub fn parse_config_directory<'a>() -> Vec<MessagingService<'a>> {
+pub async fn parse_config_directory<'a>() -> Vec<MessagingService> {
     let config_dir = get_config_dir();
     let data_dir = get_data_dir();
 
@@ -31,7 +31,7 @@ pub fn parse_config_directory<'a>() -> Vec<MessagingService<'a>> {
         let file_name = path.file_name().unwrap().to_str().unwrap();
 
         if file_name.ends_with(".toml") {
-            let message_service = parse_config_file(&path, &data_dir);
+            let message_service = parse_config_file(&path, &data_dir).await;
             services.push(message_service);
         }
     }
@@ -39,7 +39,7 @@ pub fn parse_config_directory<'a>() -> Vec<MessagingService<'a>> {
     return services;
 }
 
-fn parse_config_file<'a>(path: &PathBuf, data_dir: &PathBuf) -> MessagingService<'a> {
+async fn parse_config_file(path: &PathBuf, data_dir: &PathBuf) -> MessagingService {
     let mut file_content = String::new();
 
     let mut config_file = OpenOptions::new()
@@ -53,9 +53,21 @@ fn parse_config_file<'a>(path: &PathBuf, data_dir: &PathBuf) -> MessagingService
 
     let driver = config_file.driver.get_driver_config();
 
-    let db_path = data_dir.join(config_file.uuid.to_string());
-    let db = Builder::new().create(&MODELS, db_path).expect("Could not create database");
-    
+    let db_path = data_dir.join(config_file.uuid.to_string()).with_extension("sqlite");
+    let options = SqliteConnectOptions::new()
+        .create_if_missing(true)
+        .filename(db_path);
+    let mut db = SqliteConnection::connect_with(&options).await.unwrap();
+
+    ormlite::query("CREATE TABLE IF NOT EXISTS messages (
+    timestamp TIMESTAMP NOT NULL PRIMARY KEY,
+    sender TEXT,
+    text TEXT NOT NULL
+);")
+        .execute(&mut db)
+        .await
+        .unwrap();
+
     MessagingService {
         uuid: config_file.uuid,
         discussion_name: config_file.discussion_name,

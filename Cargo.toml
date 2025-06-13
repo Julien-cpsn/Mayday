@@ -2,20 +2,20 @@
 name = "mayday"
 version = "0.1.0"
 edition = "2024"
-default-run = "tui"
 
 [dependencies]
 ratatui = { version = "0.29.0", default-features = false, features = ["macros", "crossterm", "all-widgets"]}
-reqwest = { version = "0.12.19", default-features = false, features = ["cookies", "rustls-tls-native-roots", "multipart", "gzip", "brotli", "deflate", "stream"] }
+reqwest = { version = "0.12", default-features = false, features = ["cookies", "rustls-tls-native-roots", "multipart", "gzip", "brotli", "deflate", "stream"] }
 
 tui-textarea = { version = "0.7.0", features = ["ratatui"] }
 
-native_db = "0.8.1"
-native_model = "0.4.20"
+ormlite = { version = "0.23.3", features = ["chrono", "sqlite"]}
 
+tokio = { version = "1.45", features = ["rt", "rt-multi-thread", "macros"]}
 serde = { version = "1.0", features = ["derive"]}
 toml = "0.8"
 uuid = { version = "1.17", features = ["serde", "v4"]}
+clap = { version = "4.5", features = ["derive", "unicode"]}
 
 crokey = "1.1.2"
 directories = "6.0.0"
@@ -25,3 +25,6 @@ textwrap = "0.16.2"
 rayon = "1.10.0"
 regex = { version = "1.11.1", features = [] }
 once_cell = { version = "1.21.3", default-features = false, features = ["std"]}
+
+log = "0.4.27"
+env_logger = { version = "0.11.8", features = ["color"]}

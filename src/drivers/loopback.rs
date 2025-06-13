@@ -1,6 +1,6 @@
 use crate::models::driver_config::DriverConfig;
 use crate::models::driver::MessagingDriver;
-use crate::models::message::{DateTime, Message};
+use crate::models::message::Message;
 use chrono::Local;
 use ratatui::prelude::Color;
 use serde::{Deserialize, Serialize};
@@ -51,7 +51,7 @@ impl MessagingDriver for LoopbackMessaging {
             Message {
                 sender: Some(String::from(SENDER)),
                 text: String::from("T'es là mec ?"),
-                timestamp: DateTime(Local::now()),
+                timestamp: Local::now(),
             }
         ])
     }

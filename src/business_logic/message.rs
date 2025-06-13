@@ -11,15 +11,15 @@ impl App<'_> {
         self.message_input.set_placeholder_text("Type...");
     }
 
-    pub fn load_all_messages(&mut self) -> anyhow::Result<()> {
+    pub async fn load_all_messages(&mut self) -> anyhow::Result<()> {
         for messaging_service in self.stateful_messaging_services.messaging_services.iter_mut() {
-            messaging_service.load_tmp_messages()?;
+            messaging_service.try_load_messages().await?;
         }
 
         Ok(())
     }
 
-    pub fn send_message(&mut self) {
+    pub async fn send_message(&mut self) {
         let text = &self.message_input.lines().join("\n");
 
         if text.trim().is_empty() {
@@ -28,7 +28,7 @@ impl App<'_> {
 
         {
             let messaging_service = self.get_selected_messaging_services_mut();
-            messaging_service.send_message(text.clone()).unwrap();
+            messaging_service.send_message(text.clone()).await.unwrap();
         }
 
         self.reset_message_input();

@@ -14,7 +14,6 @@ pub trait MessagingDriver {
     fn poll_received_messages(&mut self) -> anyhow::Result<Vec<Message>>;
 }
 
-// Create a type-erased wrapper
 pub trait ErasedMessagingDriver {
     fn config(&self) -> &dyn DriverConfig;
     fn name(&self) -> &str;

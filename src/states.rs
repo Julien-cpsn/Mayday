@@ -17,7 +17,7 @@ impl<'a> App<'a> {
             return;
         }
 
-        self.update_discussion_scrollbar();
+        self.should_update_discussion_scrollbar = true;
 
         self.state = AppState::MessagingServiceSelected;
     }
@@ -26,7 +26,7 @@ impl<'a> App<'a> {
         &self.stateful_messaging_services.messaging_services[self.stateful_messaging_services.list_state.selected().unwrap()]
     }
 
-    pub fn get_selected_messaging_services_mut(&mut self) -> &mut MessagingService<'a> {
+    pub fn get_selected_messaging_services_mut(&mut self) -> &mut MessagingService {
         self.stateful_messaging_services.messaging_services.get_mut(self.stateful_messaging_services.list_state.selected().unwrap()).unwrap()
     }
 }

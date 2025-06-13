@@ -17,5 +17,8 @@ impl App<'_> {
             AppState::Main => {}
             _ => self.render_discussion_layout(frame, discussion_area)
         }
+
+        self.last_messages_area_size.0 = discussion_area.width.saturating_sub(4);
+        self.last_messages_area_size.1 = discussion_area.height.saturating_sub(6);
     }
 }
