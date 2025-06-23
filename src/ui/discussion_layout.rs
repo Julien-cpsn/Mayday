@@ -21,7 +21,7 @@ impl App<'_> {
         let inner_separator_area = text_area_area.inner(Margin::new(1, 0));
         let inner_text_area_area = text_area_area.inner(Margin::new(1, 1));
 
-        let messaging_service = self.get_selected_messaging_services();
+        let (messaging_service, _) = self.get_selected_messaging_services();
 
         let mut block = Block::bordered()
             .title_top(messaging_service.discussion_name.clone())

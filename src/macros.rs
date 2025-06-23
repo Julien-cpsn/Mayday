@@ -5,7 +5,7 @@ macro_rules! config_to_driver {
          $vis:vis enum $name:ident {
             $(
                 $(#[$meta:meta])*
-                $variant:ident ($type:ty) -> $messaging:ty, $(,)?
+                $variant:ident($type:ty) -> $messaging:ty
             ),* $(,)?
         }
     ) => {
@@ -20,9 +20,12 @@ macro_rules! config_to_driver {
         }
 
         impl $name {
-            pub fn get_driver_config(&self) -> Box<dyn ErasedMessagingDriver> {
+            pub async fn get_driver_config(&self) -> anyhow::Result<Box<dyn ErasedMessagingDriver>> {
                 match self.clone() {
-                    $(Self::$variant (config) => Box::new(<$messaging>::new(config.clone()))),*
+                    $(Self::$variant (config) => match <$messaging>::new(config.clone()).await {
+                        Ok(driver_config) => Ok(Box::new(driver_config)),
+                        Err(err) => Err(err.into()),
+                    }),*
                 }
             }
         }

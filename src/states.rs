@@ -1,3 +1,4 @@
+use ormlite::sqlite::SqliteConnection;
 use crate::app::App;
 use crate::models::service::MessagingService;
 
@@ -22,11 +23,11 @@ impl<'a> App<'a> {
         self.state = AppState::MessagingServiceSelected;
     }
     
-    pub fn get_selected_messaging_services(&self) -> &MessagingService {
+    pub fn get_selected_messaging_services(&self) -> &(MessagingService, SqliteConnection) {
         &self.stateful_messaging_services.messaging_services[self.stateful_messaging_services.list_state.selected().unwrap()]
     }
 
-    pub fn get_selected_messaging_services_mut(&mut self) -> &mut MessagingService {
+    pub fn get_selected_messaging_services_mut(&mut self) -> &mut (MessagingService, SqliteConnection) {
         self.stateful_messaging_services.messaging_services.get_mut(self.stateful_messaging_services.list_state.selected().unwrap()).unwrap()
     }
 }

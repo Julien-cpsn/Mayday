@@ -1,5 +1,4 @@
 use crate::app::App;
-use crate::models::service::MessagingService;
 use crate::states::AppState;
 use ratatui::layout::{Alignment, Rect};
 use ratatui::prelude::{Line, Span, Style, Stylize};
@@ -11,7 +10,7 @@ impl App<'_> {
         let messaging_services_items: Vec<Line> = self.stateful_messaging_services
             .messaging_services
             .iter()
-            .map(|messaging_service: &MessagingService| Line::from(vec![
+            .map(|(messaging_service, _)| Line::from(vec![
                 Span::raw(messaging_service.driver.icon()).white().bg(messaging_service.driver.color()),
                 format!(" {}", messaging_service.discussion_name).into()
             ]))
