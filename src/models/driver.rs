@@ -1,29 +1,34 @@
 use crate::models::driver_config::DriverConfig;
 use crate::models::message::Message;
+use async_trait::async_trait;
+use ormlite::sqlite::SqliteConnection;
 use ratatui::prelude::Color;
 
-pub trait MessagingDriver {
+#[async_trait]
+pub trait MessagingDriver : Send + Sync {
     type Config: DriverConfig + Sized + Clone;
 
-    fn new(config: Self::Config) -> Self where Self: Sized;
+    async fn new(config: Self::Config) -> anyhow::Result<Self> where Self: Sized;
     fn config(&self) -> &Self::Config;
     fn name(&self) -> &str;
     fn icon(&self) -> &str;
     fn color(&self) -> Color;
-    fn send_message(&mut self, message: &Message) -> anyhow::Result<()>;
-    fn poll_received_messages(&mut self) -> anyhow::Result<Vec<Message>>;
+    async fn send_message(&mut self, message: &Message) -> anyhow::Result<()>;
+    async fn poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()>;
 }
 
-pub trait ErasedMessagingDriver {
+#[async_trait]
+pub trait ErasedMessagingDriver : Send + Sync {
     fn config(&self) -> &dyn DriverConfig;
     fn name(&self) -> &str;
     fn icon(&self) -> &str;
     fn color(&self) -> Color;
-    fn send_message(&mut self, message: &Message) -> anyhow::Result<()>;
-    fn poll_received_messages(&mut self) -> anyhow::Result<Vec<Message>>;
+    async fn send_message(&mut self, message: &Message) -> anyhow::Result<()>;
+    async fn poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()>;
 }
 
-impl<T: MessagingDriver> ErasedMessagingDriver for T {
+#[async_trait]
+impl<T: MessagingDriver + Send + Sync> ErasedMessagingDriver for T {
     fn config(&self) -> &dyn DriverConfig {
         self.config()
     }
@@ -40,11 +45,11 @@ impl<T: MessagingDriver> ErasedMessagingDriver for T {
         MessagingDriver::color(self)
     }
 
-    fn send_message(&mut self, message: &Message) -> anyhow::Result<()> {
-        MessagingDriver::send_message(self, message)
+    async fn send_message(&mut self, message: &Message) -> anyhow::Result<()> {
+        MessagingDriver::send_message(self, message).await
     }
 
-    fn poll_received_messages(&mut self) -> anyhow::Result<Vec<Message>> {
-        MessagingDriver::poll_received_messages(self)
+    async fn poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()> {
+        MessagingDriver::poll_received_messages(self, db).await
     }
 }

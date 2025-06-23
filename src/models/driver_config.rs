@@ -1,1 +1,1 @@
-pub trait DriverConfig {}
+pub trait DriverConfig: Send + Sync {}

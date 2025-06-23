@@ -12,7 +12,7 @@ const QUALIFIER: &str = "com";
 const ORGANIZATION: &str = "Julien-cpsn";
 const APPLICATION: &str = "mayday";
 
-pub async fn parse_config_directory<'a>() -> Vec<MessagingService> {
+pub async fn parse_config_directory<'a>() -> anyhow::Result<Vec<(MessagingService, SqliteConnection)>> {
     let config_dir = get_config_dir();
     let data_dir = get_data_dir();
 
@@ -20,7 +20,7 @@ pub async fn parse_config_directory<'a>() -> Vec<MessagingService> {
     let paths = config_dir.read_dir().expect("Could not read config directory");
 
     for path in paths {
-        let path = path.unwrap().path();
+        let path = path?.path();
 
         if path.is_dir() {
             continue;
@@ -31,15 +31,15 @@ pub async fn parse_config_directory<'a>() -> Vec<MessagingService> {
         let file_name = path.file_name().unwrap().to_str().unwrap();
 
         if file_name.ends_with(".toml") {
-            let message_service = parse_config_file(&path, &data_dir).await;
+            let message_service = parse_config_file(&path, &data_dir).await?;
             services.push(message_service);
         }
     }
 
-    return services;
+    Ok(services)
 }
 
-async fn parse_config_file(path: &PathBuf, data_dir: &PathBuf) -> MessagingService {
+async fn parse_config_file(path: &PathBuf, data_dir: &PathBuf) -> anyhow::Result<(MessagingService, SqliteConnection)> {
     let mut file_content = String::new();
 
     let mut config_file = OpenOptions::new()
@@ -51,7 +51,7 @@ async fn parse_config_file(path: &PathBuf, data_dir: &PathBuf) -> MessagingServi
 
     let config_file = toml::from_str::<ConfigFile>(&file_content).expect("Could not parse config file");
 
-    let driver = config_file.driver.get_driver_config();
+    let driver = config_file.driver.get_driver_config().await?;
 
     let db_path = data_dir.join(config_file.uuid.to_string()).with_extension("sqlite");
     let options = SqliteConnectOptions::new()
@@ -68,13 +68,15 @@ async fn parse_config_file(path: &PathBuf, data_dir: &PathBuf) -> MessagingServi
         .await
         .unwrap();
 
-    MessagingService {
-        uuid: config_file.uuid,
-        discussion_name: config_file.discussion_name,
-        tmp_messages: vec![],
-        db,
-        driver,
-    }
+    Ok((
+        MessagingService {
+            uuid: config_file.uuid,
+            discussion_name: config_file.discussion_name,
+            tmp_messages: vec![],
+            driver,
+        },
+        db
+    ))
 }
 
 fn get_config_dir() -> PathBuf {

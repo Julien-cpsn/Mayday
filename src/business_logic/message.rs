@@ -12,8 +12,8 @@ impl App<'_> {
     }
 
     pub async fn load_all_messages(&mut self) -> anyhow::Result<()> {
-        for messaging_service in self.stateful_messaging_services.messaging_services.iter_mut() {
-            messaging_service.try_load_messages().await?;
+        for (messaging_service, db) in self.stateful_messaging_services.messaging_services.iter_mut() {
+            messaging_service.try_load_messages(db).await?;
         }
 
         Ok(())
@@ -27,8 +27,8 @@ impl App<'_> {
         }
 
         {
-            let messaging_service = self.get_selected_messaging_services_mut();
-            messaging_service.send_message(text.clone()).await.unwrap();
+            let (messaging_service, db) = self.get_selected_messaging_services_mut();
+            messaging_service.send_message(db, text.clone()).await.unwrap();
         }
 
         self.reset_message_input();
@@ -37,7 +37,7 @@ impl App<'_> {
 
     pub fn get_messages_lines_count(&self) -> usize {
         let mut line_count = 0;
-        let messaging_service = self.get_selected_messaging_services();
+        let (messaging_service, _) = self.get_selected_messaging_services();
 
         let mut last_sender = &None;
 

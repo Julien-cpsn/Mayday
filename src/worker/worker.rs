@@ -1,11 +1,8 @@
 use crate::models::service::MessagingService;
-use std::time::Duration;
-use log::{info, LevelFilter};
-use tokio::time::sleep;
+use log::LevelFilter;
+use ormlite::sqlite::SqliteConnection;
 
-pub const TICK_RATE: Duration = Duration::from_millis(10000);
-
-pub async fn start_worker(mut messaging_services: Vec<MessagingService>) -> anyhow::Result<()> {
+pub async fn start_worker(mut messaging_services: Vec<(MessagingService, SqliteConnection)>) -> anyhow::Result<()> {
     println!("Starting worker...");
 
     env_logger::builder()
@@ -14,11 +11,13 @@ pub async fn start_worker(mut messaging_services: Vec<MessagingService>) -> anyh
         .init();
 
 
-    loop {
-        for messaging_service in messaging_services.iter_mut() {
-            info!("Polling received messages for \"{}\"", messaging_service.discussion_name);
-            messaging_service.poll_received_messages().await?;
-        }
-        sleep(TICK_RATE).await;
-    }
+    let handles = messaging_services
+        .iter_mut()
+        .map(|(messaging_service, db)| async {
+            messaging_service.poll_received_messages(db).await
+        });
+
+    futures::future::join_all(handles).await;
+
+    Ok(())
 }

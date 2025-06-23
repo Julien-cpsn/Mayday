@@ -8,7 +8,7 @@ impl App<'_> {
         let app_state = match self.state {
             AppState::Main => Line::from(vec![Span::raw("Main menu").on_dark_gray()]),
             AppState::MessagingServiceSelected => {
-                let messaging_service = self.get_selected_messaging_services();
+                let (messaging_service, _) = self.get_selected_messaging_services();
                 let driver_name = messaging_service.driver.name();
                 let discussion_name = &messaging_service.discussion_name;
                 

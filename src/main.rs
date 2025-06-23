@@ -7,7 +7,7 @@ use mayday::worker::worker::start_worker;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let messaging_services = parse_config_directory().await;
+    let messaging_services = parse_config_directory().await?;
     
     match &ARGS.command {
         None => {

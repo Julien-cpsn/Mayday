@@ -12,6 +12,7 @@ tui-textarea = { version = "0.7.0", features = ["ratatui"] }
 ormlite = { version = "0.23.3", features = ["chrono", "sqlite"]}
 
 tokio = { version = "1.45", features = ["rt", "rt-multi-thread", "macros"]}
+futures = "0.3.31"
 serde = { version = "1.0", features = ["derive"]}
 toml = "0.8"
 uuid = { version = "1.17", features = ["serde", "v4"]}
@@ -25,6 +26,10 @@ textwrap = "0.16.2"
 rayon = "1.10.0"
 regex = { version = "1.11.1", features = [] }
 once_cell = { version = "1.21.3", default-features = false, features = ["std"]}
+async-trait = "0.1.88"
 
 log = "0.4.27"
 env_logger = { version = "0.11.8", features = ["color"]}
+
+# Messaging services dependencies
+irc = { version = "1.1.0", default-features = false, features = ["channel-lists", "ctcp", "rustls-native-certs", "serde"]}
