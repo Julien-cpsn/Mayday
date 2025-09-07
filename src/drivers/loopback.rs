@@ -59,17 +59,18 @@ impl MessagingDriver for LoopbackMessaging {
     }
 
     async fn passive_poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()> {
-        sleep(Duration::from_secs(10)).await;
+        loop {
+            sleep(Duration::from_secs(10)).await;
 
-        trace!("New loopback messages received");
-        
-        Message {
-            sender: Some(String::from(SENDER)),
-            text: String::from("You here?"),
-            timestamp: Local::now(),
+            trace!("New loopback messages received");
+
+            Message {
+                sender: Some(String::from(SENDER)),
+                text: String::from("You here?"),
+                timestamp: Local::now(),
+            }
+                .insert(&mut *db)
+                .await?;
         }
-            .insert(db);
-        
-        Ok(())
     }
 }

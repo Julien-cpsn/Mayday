@@ -1,7 +1,15 @@
 [package]
 name = "mayday"
+description = "A multi-messaging-sevice aggregator into an all-in-one application (android's app beeper-like)"
 version = "0.1.0"
 edition = "2024"
+authors = ["julien-cpsn"]
+license = "MIT"
+readme = "README.md"
+documentation = "https://github.com/Julien-cpsn/mayday"
+homepage = "https://github.com/Julien-cpsn/mayday"
+repository = "https://github.com/Julien-cpsn/mayday"
+keywords = ["messaging", "service", "TUI", "ratatui"]
 
 [dependencies]
 ratatui = { version = "0.29.0", default-features = false, features = ["macros", "crossterm", "all-widgets"]}
