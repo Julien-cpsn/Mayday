@@ -1,9 +1,9 @@
-use chrono::Local;
 use crate::app::App;
 use crate::states::AppState;
+use chrono::Local;
 use ratatui::layout::Margin;
 use ratatui::prelude::{Alignment, Constraint, Layout, Line, Rect, Style, Stylize};
-use ratatui::widgets::{Block, Borders, Paragraph, Scrollbar, ScrollbarOrientation, Wrap};
+use ratatui::widgets::{Block, Borders, Paragraph, Scrollbar, ScrollbarOrientation};
 use ratatui::Frame;
 use textwrap::wrap;
 
@@ -35,7 +35,7 @@ impl App<'_> {
 
         let mut messages = vec![];
         let mut last_sender = &None;
-        
+
         for message in &messaging_service.tmp_messages {
             let mut alignment = Alignment::Right;
 
@@ -55,8 +55,13 @@ impl App<'_> {
                 }
 
                 for line in lines {
+                    let line = match line.is_empty() {
+                        true => " ".repeat(max_length),
+                        false => format!("{line:max_length$}")
+                    };
+
                     messages.push(
-                        Line::raw(format!("{line:max_length$}"))
+                        Line::raw(line)
                             .white()
                             .bg(messaging_service.driver.color())
                             .alignment(alignment)
@@ -65,8 +70,13 @@ impl App<'_> {
             }
             else {
                 for line in lines {
+                    let line = match line.is_empty() {
+                        true => " ".repeat(max_length),
+                        false => format!("{line:max_length$}")
+                    };
+
                     messages.push(
-                        Line::raw(format!("{line:max_length$}"))
+                        Line::raw(line)
                             .white()
                             .on_gray()
                             .alignment(alignment)
@@ -78,14 +88,14 @@ impl App<'_> {
                 true => "%H:%M",
                 false => "%H:%M %d/%m/%Y"
             };
-            
+
             messages.push(
                 Line::raw(message.timestamp.format(timestamp_format).to_string())
                     .dark_gray()
                     .dim()
                     .alignment(alignment)
             );
-            
+
             last_sender = &message.sender;
         }
 
@@ -93,8 +103,7 @@ impl App<'_> {
             .scroll((
                 self.discussion_scrollbar.scroll,
                 0
-            ))
-            .wrap(Wrap { trim: false });
+            ));
         frame.render_widget(&messages_paragraph, inner_messages_area);
 
         let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)

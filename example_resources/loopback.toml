@@ -1,0 +1,5 @@
+uuid = "eaa466df-f622-4859-a01e-f699b19d3212"
+discussion_name = "Me"
+
+[driver]
+type = "loopback"

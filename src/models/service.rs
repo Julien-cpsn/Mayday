@@ -38,14 +38,18 @@ impl MessagingService {
             timestamp: Local::now(),
         };
 
+        self.driver.send_message(db, &message).await?;
         message.clone().insert(db).await?;
-        self.driver.send_message(&message).await?;
         self.tmp_messages.push(message.clone());
 
         Ok(())
     }
 
-    pub async fn poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()> {
-        self.driver.poll_received_messages(db).await
+    pub async fn active_poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()> {
+        self.driver.active_poll_received_messages(db).await
+    }
+    
+    pub async fn passive_poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()> {
+        self.driver.passive_poll_received_messages(db).await
     }
 }

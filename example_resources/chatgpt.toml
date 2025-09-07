@@ -1,0 +1,7 @@
+uuid = "10dd04ce-32eb-47dd-a289-7d1afdb1de11"
+discussion_name = "ChatGPT"
+
+[driver]
+type = "ChatGPT"
+api_key = "<your_token>"
+temperature = 0.5

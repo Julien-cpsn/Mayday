@@ -6,6 +6,7 @@ use chrono::Local;
 use ratatui::prelude::Color;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
+use log::{trace};
 use ormlite::Model;
 use ormlite::sqlite::SqliteConnection;
 use tokio::time::sleep;
@@ -42,23 +43,29 @@ impl MessagingDriver for LoopbackMessaging {
     }
 
     fn icon(&self) -> &str {
-        "✉ "
+        "⟳"
     }
 
     fn color(&self) -> Color {
         Color::Blue
     }
 
-    async fn send_message(&mut self, _message: &Message) -> anyhow::Result<()> {
+    async fn send_message(&mut self, _: &mut SqliteConnection, _: &Message) -> anyhow::Result<()> {
         Ok(())
     }
 
-    async fn poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()> {
+    async fn active_poll_received_messages(&mut self, _: &mut SqliteConnection) -> anyhow::Result<()> {
+        Ok(())
+    }
+
+    async fn passive_poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()> {
         sleep(Duration::from_secs(10)).await;
+
+        trace!("New loopback messages received");
         
         Message {
             sender: Some(String::from(SENDER)),
-            text: String::from("T'es là mec ?"),
+            text: String::from("You here?"),
             timestamp: Local::now(),
         }
             .insert(db);

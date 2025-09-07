@@ -3,7 +3,7 @@ use mayday::args::{Command, ARGS};
 use mayday::files::config::parse_config_directory;
 use mayday::models::stateful_messaging_services::StatefulMessagingServices;
 use ratatui::widgets::ListState;
-use mayday::worker::worker::start_worker;
+use mayday::worker::worker::{start_passive_worker};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -24,7 +24,7 @@ async fn main() -> anyhow::Result<()> {
             ratatui::restore();
         }
         Some(command) => match command {
-            Command::Worker => start_worker(messaging_services).await?,
+            Command::Worker => start_passive_worker(messaging_services).await?,
         }
     }
 

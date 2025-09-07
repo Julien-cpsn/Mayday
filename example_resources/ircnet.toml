@@ -1,0 +1,14 @@
+uuid = "60de91cf-41fc-48ab-893e-b50ff514a706"
+discussion_name = "IRC freenode"
+
+[driver]
+type = "irc"
+channel = "#rust"
+server = "chat.freenode.net"
+#port = 6697
+nickname = "mayday user"
+alt_nicks = ["[mayday-user]"]
+#username = "mayday"
+#realname = "mayday user"
+#umodes = "+nt"
+#encoding = "UTF-8"

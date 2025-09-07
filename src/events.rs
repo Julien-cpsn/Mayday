@@ -20,6 +20,7 @@ impl App<'_> {
         }
         else {
             for (index, (messaging_service, db)) in self.stateful_messaging_services.messaging_services.iter_mut().enumerate() {
+                messaging_service.active_poll_received_messages(db).await?;
                 if messaging_service.try_load_messages(db).await? && self.stateful_messaging_services.list_state.selected().is_some() && self.stateful_messaging_services.list_state.selected().unwrap() == index {
                     self.should_update_discussion_scrollbar = true;
                 }

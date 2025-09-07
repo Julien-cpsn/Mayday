@@ -3,12 +3,13 @@ use crate::models::driver_config::DriverConfig;
 use crate::models::message::Message;
 use async_trait::async_trait;
 use chrono::Local;
+use futures::StreamExt;
 use irc::client::prelude::Config;
 use irc::client::Client;
 use irc::proto::Command;
-use log::info;
+use log::{trace};
+use ormlite::Model;
 use ormlite::sqlite::SqliteConnection;
-use ormlite::{Model, StreamExt};
 use ratatui::prelude::Color;
 use serde::{Deserialize, Serialize};
 
@@ -61,19 +62,23 @@ impl MessagingDriver for IrcMessaging {
         Color::Blue
     }
 
-    async fn send_message(&mut self, message: &Message) -> anyhow::Result<()> {
+    async fn send_message(&mut self, _: &mut SqliteConnection, message: &Message) -> anyhow::Result<()> {
         self.client.send_privmsg(&self.config.channel, &message.text)?;
         Ok(())
     }
 
-    async fn poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()> {
+    async fn active_poll_received_messages(&mut self, _: &mut SqliteConnection) -> anyhow::Result<()> {
+        Ok(())
+    }
+    
+    async fn passive_poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()> {
         let mut stream = self.client.stream()?;
 
         while let Some(message) = stream.next().await.transpose()? {
             let nickname = message.source_nickname().unwrap_or("unknown").to_string();
 
             if let Command::PRIVMSG(channel, text) = message.command {
-                info!("Message received in {channel}");
+                trace!("Message received in {channel}");
                 
                 if &text == "VERSION" {
                     continue;

@@ -13,8 +13,9 @@ pub trait MessagingDriver : Send + Sync {
     fn name(&self) -> &str;
     fn icon(&self) -> &str;
     fn color(&self) -> Color;
-    async fn send_message(&mut self, message: &Message) -> anyhow::Result<()>;
-    async fn poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()>;
+    async fn send_message(&mut self, db: &mut SqliteConnection, message: &Message) -> anyhow::Result<()>;
+    async fn active_poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()>;
+    async fn passive_poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()>;
 }
 
 #[async_trait]
@@ -23,8 +24,9 @@ pub trait ErasedMessagingDriver : Send + Sync {
     fn name(&self) -> &str;
     fn icon(&self) -> &str;
     fn color(&self) -> Color;
-    async fn send_message(&mut self, message: &Message) -> anyhow::Result<()>;
-    async fn poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()>;
+    async fn send_message(&mut self, db: &mut SqliteConnection, message: &Message) -> anyhow::Result<()>;
+    async fn active_poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()>;
+    async fn passive_poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()>;
 }
 
 #[async_trait]
@@ -45,11 +47,15 @@ impl<T: MessagingDriver + Send + Sync> ErasedMessagingDriver for T {
         MessagingDriver::color(self)
     }
 
-    async fn send_message(&mut self, message: &Message) -> anyhow::Result<()> {
-        MessagingDriver::send_message(self, message).await
+    async fn send_message(&mut self, db: &mut SqliteConnection, message: &Message) -> anyhow::Result<()> {
+        MessagingDriver::send_message(self, db, message).await
     }
 
-    async fn poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()> {
-        MessagingDriver::poll_received_messages(self, db).await
+    async fn active_poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()> {
+        MessagingDriver::active_poll_received_messages(self, db).await
+    }
+    
+    async fn passive_poll_received_messages(&mut self, db: &mut SqliteConnection) -> anyhow::Result<()> {
+        MessagingDriver::passive_poll_received_messages(self, db).await
     }
 }

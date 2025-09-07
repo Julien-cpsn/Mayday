@@ -11,7 +11,9 @@ impl App<'_> {
             .messaging_services
             .iter()
             .map(|(messaging_service, _)| Line::from(vec![
-                Span::raw(messaging_service.driver.icon()).white().bg(messaging_service.driver.color()),
+                Span::raw(format!("{: ^3}", messaging_service.driver.icon()))
+                    .white()
+                    .bg(messaging_service.driver.color()),
                 format!(" {}", messaging_service.discussion_name).into()
             ]))
             .collect();
