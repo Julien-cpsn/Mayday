@@ -95,9 +95,9 @@ Erasing a file will reset the history.
 
 You can develop a new messaging service driver as follows.
 
-1. Copy `loopback.rs` from `src/drivers` to `src/drivers<my_awesome_driver>.rs`
+1. Copy `loopback.rs` from `src/drivers` to `src/drivers/<my_awesome_driver>.rs`
 2. Add your driver to the `MessagingDriverConfigs` enum in `src/drivers/mod.rs`
-3. Fill with your code. Keep in mind that
+3. Fill the copied driver with your code. Keep in mind that:
     - `active_poll_received_messages` is called by the client (so when you are using the app)
     - `passive_poll_received_messages` is called by the background worker
 4. Update this README
